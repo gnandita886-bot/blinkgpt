@@ -1025,4 +1025,22 @@ document.body.appendChild(temporary);
 temporary.select();
 
 const success = document.execCommand("copy");
-te
+temporary.remove();
+
+if (!success) {
+
+throw new Error("Copy failed");
+
+}
+
+}
+
+async function typewriter(element, content) { const token = ++typing Token; const chunkSize = 5;
+
+let position = 0;
+
+element.textContent =
+
+while (position < content.length && token === typing Token) { position = Math.min(position + chunkSize, content.length);
+
+element.innerHTML = renderMarkdown( content.slice(0, position
