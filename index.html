@@ -1,42 +1,60 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#101010">
-<title>Xolox AI</title>
+<meta name="theme-color" content="#ffffff">
+<title>BlinkGPT</title>
 
 <style>
 :root {
+  --bg: #ffffff;
+  --panel: #f7f7f8;
+  --surface: #ffffff;
+  --text: #171717;
+  --muted: #777777;
+  --border: #e7e7e7;
+  --assistant: #f5f5f5;
+  --user: #eeeeee;
+  --input: #ffffff;
+  --shadow: 0 3px 18px rgba(0,0,0,.06);
+}
+
+body.dark {
   --bg: #101010;
   --panel: #171717;
-  --panel2: #202020;
+  --surface: #1d1d1d;
   --text: #f4f4f4;
-  --muted: #999;
+  --muted: #a0a0a0;
   --border: #303030;
-  --accent: #a78bfa;
+  --assistant: #202020;
+  --user: #292929;
+  --input: #1d1d1d;
+  --shadow: 0 3px 18px rgba(0,0,0,.25);
 }
 
 * {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: Inter, system-ui, Arial, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
   height: 100dvh;
   overflow: hidden;
+  transition: background .2s, color .2s;
 }
 
-button, textarea {
+button, textarea, select {
   font: inherit;
 }
 
 button {
   cursor: pointer;
-  color: inherit;
 }
 
 .app {
@@ -45,94 +63,107 @@ button {
   width: 100%;
 }
 
-/* SIDEBAR */
+/* Sidebar */
 
 .sidebar {
   width: 260px;
-  flex-shrink: 0;
-  background: #151515;
+  background: var(--panel);
   border-right: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  padding: 16px;
-  gap: 16px;
-  transition: transform .25s ease;
+  padding: 17px;
+  transition: transform .25s;
+  z-index: 20;
 }
 
-.brand {
+.brand-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 21px;
-  font-weight: 800;
-  letter-spacing: -.7px;
+  gap: 11px;
+  margin-bottom: 27px;
 }
 
 .logo {
-  width: 35px;
-  height: 35px;
+  width: 39px;
+  height: 39px;
+  background: #000000;
+  color: #ffffff;
   border-radius: 12px;
-  background: var(--accent);
-  color: #111;
   display: grid;
   place-items: center;
-  font-weight: 900;
+  font-size: 24px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 19px;
+  font-weight: 750;
+  letter-spacing: -.6px;
 }
 
 .new-chat {
+  width: 100%;
   border: 1px solid var(--border);
-  border-radius: 12px;
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 11px;
   padding: 12px;
-  background: var(--panel2);
   text-align: left;
+  font-weight: 600;
+  margin-bottom: 22px;
 }
 
 .new-chat:hover,
-.history-item:hover {
-  background: #292929;
+.history-item:hover,
+.setting-btn:hover {
+  background: var(--user);
 }
 
-.history-label {
+.section-label {
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
+  margin: 0 0 10px 5px;
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: .7px;
 }
 
-.history {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
+.history-list {
   overflow-y: auto;
   flex: 1;
 }
 
 .history-item {
-  border: 0;
-  background: transparent;
   padding: 11px;
   border-radius: 9px;
-  text-align: left;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  font-size: 13px;
+  margin-bottom: 4px;
 }
 
 .history-item.active {
-  background: #292929;
+  background: var(--user);
 }
 
 .sidebar-bottom {
   border-top: 1px solid var(--border);
-  padding-top: 14px;
-  color: var(--muted);
-  font-size: 12px;
-  line-height: 1.7;
+  padding-top: 13px;
 }
 
-/* MAIN */
+.credit {
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+  margin-top: 12px;
+}
+
+/* Main area */
 
 .main {
   flex: 1;
@@ -142,126 +173,161 @@ button {
   position: relative;
 }
 
-.header {
-  height: 62px;
+.topbar {
+  height: 65px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 20px;
+  padding: 0 22px;
   border-bottom: 1px solid var(--border);
+  background: var(--bg);
 }
 
-.header-left,
-.header-right {
+.top-left {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.header-title {
+.mobile-logo {
+  display: none;
+  align-items: center;
+  gap: 9px;
   font-weight: 750;
-  font-size: 16px;
 }
 
-.status {
-  font-size: 11px;
-  color: #a5e6a5;
-  background: #17301d;
-  padding: 5px 8px;
-  border-radius: 20px;
+.mobile-logo .logo {
+  width: 32px;
+  height: 32px;
+  font-size: 20px;
+  border-radius: 9px;
+}
+
+.top-title {
+  font-size: 16px;
+  font-weight: 650;
+}
+
+.top-actions {
+  display: flex;
+  gap: 9px;
+  align-items: center;
 }
 
 .icon-btn {
-  border: 1px solid var(--border);
-  background: var(--panel);
-  border-radius: 10px;
   width: 38px;
   height: 38px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 10px;
   display: grid;
   place-items: center;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .icon-btn:hover {
-  background: #303030;
+  background: var(--user);
 }
 
-/* CHAT */
+.menu-wrap {
+  position: relative;
+}
 
-.chat {
+.settings-menu {
+  position: absolute;
+  right: 0;
+  top: 47px;
+  width: 190px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  border-radius: 12px;
+  padding: 8px;
+  display: none;
+  z-index: 50;
+}
+
+.settings-menu.show {
+  display: block;
+}
+
+.menu-title {
+  font-size: 12px;
+  color: var(--muted);
+  padding: 8px;
+}
+
+.setting-btn {
+  border: 0;
+  width: 100%;
+  background: transparent;
+  color: var(--text);
+  text-align: left;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+/* Chat */
+
+.chat-area {
   flex: 1;
-  min-height: 0;
   overflow-y: auto;
-  padding: 24px 18px 35px;
+  padding: 25px 18px 30px;
   scroll-behavior: smooth;
 }
 
-.messages {
-  max-width: 800px;
+.chat-content {
   width: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 25px;
+  max-width: 790px;
+  margin: auto;
 }
 
 .welcome {
-  margin: auto;
+  min-height: 65%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   text-align: center;
-  max-width: 560px;
-  padding: 35px 15px;
+  padding: 30px 12px;
 }
 
 .welcome-logo {
-  width: 65px;
-  height: 65px;
-  border-radius: 22px;
-  background: var(--accent);
-  color: #111;
+  width: 67px;
+  height: 67px;
+  border-radius: 21px;
+  background: #000000;
+  color: #ffffff;
   display: grid;
   place-items: center;
-  font-size: 30px;
-  font-weight: 900;
-  margin: 0 auto 22px;
+  font-size: 43px;
+  font-weight: 800;
+  margin-bottom: 22px;
 }
 
 .welcome h1 {
-  font-size: clamp(27px, 5vw, 42px);
-  margin: 0 0 12px;
-  letter-spacing: -1.4px;
+  font-size: clamp(25px, 5vw, 34px);
+  letter-spacing: -1px;
+  margin-bottom: 10px;
 }
 
 .welcome p {
   color: var(--muted);
-  line-height: 1.7;
-  margin: 0;
+  font-size: 14px;
 }
 
-.suggestions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.suggestion {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 13px;
-  text-align: left;
-  font-size: 13px;
-}
-
-.suggestion:hover {
-  border-color: var(--accent);
+.messages {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 }
 
 .message {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   max-width: 100%;
 }
 
@@ -273,291 +339,253 @@ button {
   align-items: flex-start;
 }
 
-.role {
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.bubble {
-  max-width: 100%;
-  overflow-wrap: anywhere;
+.message-bubble {
+  max-width: 88%;
+  padding: 13px 16px;
+  border-radius: 16px;
+  font-size: 14px;
   line-height: 1.75;
-  font-size: 15px;
+  overflow-wrap: anywhere;
 }
 
-.user .bubble {
-  background: #292929;
-  padding: 12px 16px;
-  border-radius: 18px 18px 5px 18px;
-  max-width: min(85%, 620px);
+.user .message-bubble {
+  background: var(--user);
+  border: 1px solid var(--border);
+  border-bottom-right-radius: 5px;
 }
 
-.assistant .bubble {
-  width: 100%;
+.assistant .message-bubble {
+  background: var(--assistant);
+  border: 1px solid var(--border);
+  border-bottom-left-radius: 5px;
 }
 
-.bubble p {
-  margin: 0 0 12px;
+.message-bubble p {
+  margin-bottom: 9px;
 }
 
-.bubble p:last-child {
+.message-bubble p:last-child {
   margin-bottom: 0;
 }
 
-.bubble strong {
-  font-weight: 800;
-  color: #fff;
-}
-
-.bubble em {
-  font-style: italic;
-}
-
-.bubble h1,
-.bubble h2,
-.bubble h3 {
-  line-height: 1.35;
-  margin: 20px 0 10px;
-}
-
-.bubble h1 { font-size: 24px; }
-.bubble h2 { font-size: 21px; }
-.bubble h3 { font-size: 18px; }
-
-.bubble ul,
-.bubble ol {
-  padding-left: 24px;
-  margin: 10px 0;
-}
-
-.bubble li {
-  margin: 5px 0;
-}
-
-.bubble blockquote {
-  margin: 12px 0;
-  border-left: 3px solid var(--accent);
-  padding: 5px 13px;
-  color: #ccc;
-}
-
-.bubble a {
-  color: #c4b5fd;
-  text-decoration: underline;
-}
-
-.bubble code {
-  background: #252525;
-  border: 1px solid #373737;
-  border-radius: 5px;
-  padding: 2px 5px;
-  font-family: Consolas, monospace;
-  font-size: .9em;
-}
-
-.bubble pre {
-  background: #090909;
-  border: 1px solid var(--border);
-  padding: 15px;
-  border-radius: 12px;
+.message-bubble pre {
+  white-space: pre-wrap;
   overflow-x: auto;
-  white-space: pre;
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 9px;
+  margin: 9px 0;
 }
 
-.bubble pre code {
-  padding: 0;
-  border: 0;
-  background: transparent;
+.message-bubble code {
+  font-family: Consolas, monospace;
+  font-size: 12px;
 }
 
-/* REPLY ACTIONS */
+.message-bubble ul,
+.message-bubble ol {
+  padding-left: 22px;
+  margin: 8px 0;
+}
 
-.actions {
+.message-actions {
   display: flex;
-  align-items: center;
   gap: 5px;
-  margin-top: 5px;
-  flex-wrap: wrap;
+  margin-top: 7px;
+  padding-left: 4px;
 }
 
 .action-btn {
-  min-width: 35px;
-  height: 34px;
-  padding: 0 8px;
-  border-radius: 8px;
-  border: 1px solid transparent;
+  border: 0;
   background: transparent;
   color: var(--muted);
-  font-size: 19px;
-  display: inline-grid;
-  place-items: center;
-  transition: background .15s, color .15s, border-color .15s;
+  padding: 6px;
+  font-size: 15px;
+  border-radius: 6px;
 }
 
-.action-btn:hover,
-.action-btn.selected {
-  background: var(--panel2);
-  border-color: var(--border);
-  color: white;
+.action-btn:hover {
+  background: var(--panel);
+  color: var(--text);
 }
 
-.action-btn.selected {
-  color: var(--accent);
-}
+/* Thinking animation */
 
-.action-btn:disabled {
-  opacity: .45;
-  cursor: not-allowed;
-}
-
-.action-btn .action-label {
-  font-size: 11px;
-  margin-left: 4px;
-}
-
-.typing {
-  display: inline-flex;
+.thinking {
+  display: flex;
   gap: 5px;
   align-items: center;
-  padding: 10px 0;
+  padding: 17px;
 }
 
-.typing span {
-  width: 7px;
+.thinking span {
   height: 7px;
+  width: 7px;
   border-radius: 50%;
-  background: #aaa;
-  animation: bounce .9s infinite ease-in-out;
+  background: var(--muted);
+  animation: bounce 1.1s infinite ease-in-out;
 }
 
-.typing span:nth-child(2) {
+.thinking span:nth-child(2) {
   animation-delay: .15s;
 }
 
-.typing span:nth-child(3) {
+.thinking span:nth-child(3) {
   animation-delay: .3s;
 }
 
 @keyframes bounce {
-  0%, 60%, 100% {
-    transform: translateY(0);
-    opacity: .5;
-  }
-  30% {
-    transform: translateY(-6px);
-    opacity: 1;
-  }
+  0%, 60%, 100% { transform: translateY(0); opacity: .5; }
+  30% { transform: translateY(-6px); opacity: 1; }
 }
 
-/* COMPOSER */
+/* Composer */
 
 .composer-area {
   flex-shrink: 0;
-  padding: 12px 18px max(14px, env(safe-area-inset-bottom));
-  background: linear-gradient(transparent, var(--bg) 20%);
+  padding: 12px 18px 17px;
+  background: var(--bg);
+}
+
+.composer-inner {
+  max-width: 790px;
+  margin: auto;
 }
 
 .composer {
-  max-width: 800px;
-  margin: 0 auto;
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  padding: 10px;
-  border: 1px solid #383838;
-  background: #1c1c1c;
+  background: var(--input);
+  border: 1px solid var(--border);
   border-radius: 17px;
+  padding: 10px 11px 10px 15px;
+  box-shadow: var(--shadow);
 }
 
 .composer:focus-within {
-  border-color: #666;
+  border-color: #999999;
 }
 
-#prompt {
+#messageInput {
   flex: 1;
   min-width: 0;
-  max-height: 180px;
+  max-height: 160px;
   resize: none;
   outline: none;
   border: 0;
   background: transparent;
-  color: white;
+  color: var(--text);
+  font-size: 14px;
   line-height: 1.6;
-  padding: 8px 5px;
+  padding: 7px 0;
 }
 
-#prompt::placeholder {
-  color: #888;
+#messageInput::placeholder {
+  color: var(--muted);
 }
 
 .send-btn {
+  width: 39px;
+  height: 39px;
   flex-shrink: 0;
-  width: 42px;
-  height: 42px;
   border: 0;
-  border-radius: 12px;
-  background: var(--accent);
-  color: #111;
+  border-radius: 11px;
+  background: #000000;
+  color: #ffffff;
+  display: grid;
+  place-items: center;
   font-size: 19px;
-  font-weight: 800;
+  transition: opacity .2s;
 }
 
 .send-btn:disabled {
-  opacity: .4;
+  opacity: .45;
   cursor: not-allowed;
 }
 
-.disclaimer {
-  text-align: center;
-  color: #777;
-  font-size: 11px;
-  padding-top: 9px;
+.send-btn:hover:not(:disabled) {
+  background: #222222;
 }
 
-/* MOBILE */
+.composer-note {
+  text-align: center;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 10px;
+}
+
+.language-select {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Mobile */
+
+.mobile-menu {
+  display: none;
+}
+
+.sidebar-overlay {
+  display: none;
+}
 
 @media (max-width: 700px) {
   .sidebar {
     position: fixed;
-    inset: 0 auto 0 0;
-    height: 100dvh;
-    z-index: 10;
+    left: 0;
+    top: 0;
+    bottom: 0;
     transform: translateX(-105%);
-    box-shadow: 15px 0 40px #0006;
+    width: 275px;
+    box-shadow: var(--shadow);
   }
 
   .sidebar.open {
     transform: translateX(0);
   }
 
-  .header {
+  .sidebar-overlay.show {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.35);
+    z-index: 10;
+  }
+
+  .mobile-menu {
+    display: grid;
+  }
+
+  .mobile-logo {
+    display: flex;
+  }
+
+  .top-title {
+    display: none;
+  }
+
+  .topbar {
+    height: 58px;
     padding: 0 12px;
   }
 
-  .chat {
-    padding: 18px 14px 25px;
+  .chat-area {
+    padding: 17px 12px 20px;
+  }
+
+  .message-bubble {
+    max-width: 94%;
+    font-size: 13px;
   }
 
   .composer-area {
-    padding-left: 12px;
-    padding-right: 12px;
+    padding: 9px 10px 12px;
   }
 
-  .suggestions {
-    grid-template-columns: 1fr;
-  }
-
-  .welcome {
-    padding: 20px 4px;
-  }
-
-  .bubble {
-    font-size: 14px;
-  }
-
-  .status {
-    display: none;
+  .welcome h1 {
+    font-size: 27px;
   }
 }
 </style>
@@ -566,490 +594,471 @@ button {
 <body>
 <div class="app">
 
+  <div class="sidebar-overlay" id="sidebarOverlay"
+       onclick="toggleSidebar()"></div>
+
   <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <div class="logo">X</div>
-      <span>Xolox</span>
+
+    <div class="brand-row">
+      <div class="logo">B</div>
+      <div class="brand-name">BlinkGPT</div>
     </div>
 
-    <button class="new-chat" id="newChat">＋ New chat</button>
+    <button class="new-chat" onclick="newChat()">
+      ＋ &nbsp; New chat
+    </button>
 
-    <div class="history-label">Recent chats</div>
-    <div class="history" id="history"></div>
+    <div class="section-label">Recent chats</div>
+    <div class="history-list" id="historyList"></div>
 
     <div class="sidebar-bottom">
-      Xolox AI<br>
-      Created for Neeraj Production
+      <button class="setting-btn" onclick="toggleTheme()">
+        ◐ &nbsp; Switch theme
+      </button>
+      <button class="setting-btn" onclick="clearHistory()">
+        ✕ &nbsp; Clear history
+      </button>
+
+      <div class="credit">
+        Created & idea by<br>
+        <strong>Neeraj Production</strong>
+      </div>
     </div>
   </aside>
 
   <main class="main">
-    <header class="header">
-      <div class="header-left">
-        <button class="icon-btn" id="menuBtn" aria-label="Open menu">☰</button>
-        <div class="header-title">Xolox AI</div>
-        <span class="status">● Online</span>
+
+    <header class="topbar">
+      <div class="top-left">
+        <button class="icon-btn mobile-menu"
+                onclick="toggleSidebar()">☰</button>
+
+        <div class="mobile-logo">
+          <div class="logo">B</div>
+          <span>BlinkGPT</span>
+        </div>
+
+        <div class="top-title">New conversation</div>
       </div>
 
-      <div class="header-right">
-        <button class="icon-btn" id="clearBtn" title="New conversation">＋</button>
+      <div class="top-actions">
+
+        <button class="icon-btn" title="New chat"
+                onclick="newChat()">＋</button>
+
+        <div class="menu-wrap">
+          <button class="icon-btn" title="Settings"
+                  onclick="toggleSettings()">⚙</button>
+
+          <div class="settings-menu" id="settingsMenu">
+            <div class="menu-title">Appearance</div>
+            <button class="setting-btn" onclick="setTheme('light')">
+              ☀ &nbsp; White theme
+            </button>
+            <button class="setting-btn" onclick="setTheme('dark')">
+              ☾ &nbsp; Black theme
+            </button>
+          </div>
+        </div>
+
       </div>
     </header>
 
-    <section class="chat" id="chat">
-      <div class="messages" id="messages"></div>
+    <section class="chat-area" id="chatArea">
+      <div class="chat-content">
+
+        <div class="welcome" id="welcome">
+          <div class="welcome-logo">B</div>
+          <h1>Wanna start new Adv?</h1>
+          <p>Ask anything. Let's explore something new.</p>
+        </div>
+
+        <div class="messages" id="messages"></div>
+
+      </div>
     </section>
 
     <footer class="composer-area">
-      <form class="composer" id="chatForm">
-        <textarea
-          id="prompt"
-          rows="1"
-          placeholder="Message Xolox..."
-          aria-label="Message Xolox"
-          required
-        ></textarea>
-        <button class="send-btn" id="sendBtn" type="submit" aria-label="Send message">↑</button>
-      </form>
-      <div class="disclaimer">
-        Xolox can make mistakes. Check important information.
+      <div class="composer-inner">
+
+        <div class="composer">
+          <textarea
+            id="messageInput"
+            rows="1"
+            placeholder="Message BlinkGPT..."
+            aria-label="Message BlinkGPT"></textarea>
+
+          <button class="send-btn" id="sendBtn"
+                  onclick="sendMessage()" title="Send">
+            ↑
+          </button>
+        </div>
+
+        <div class="composer-note">Mic is yours</div>
       </div>
     </footer>
+
   </main>
 </div>
 
 <script>
-const API_URL = "/api/chat";
-
-const $ = id => document.getElementById(id);
-
-const sidebar = $("sidebar");
-const chat = $("chat");
-const messagesEl = $("messages");
-const historyEl = $("history");
-const promptEl = $("prompt");
-const sendBtn = $("sendBtn");
+const input = document.getElementById("messageInput");
+const sendBtn = document.getElementById("sendBtn");
+const messagesEl = document.getElementById("messages");
+const welcomeEl = document.getElementById("welcome");
+const chatArea = document.getElementById("chatArea");
+const historyList = document.getElementById("historyList");
 
 let chats = [];
 let currentChatId = null;
 let isSending = false;
-let typingToken = 0;
 
-function newId() {
-  return Date.now().toString(36) +
-    Math.random().toString(36).slice(2, 8);
-}
-
-function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
-}
-
-/* Markdown rendering: bold, italic, code, lists, headings and links. */
-function renderMarkdown(input) {
-  const blocks = [];
-  let text = String(input || "").replace(/\r\n/g, "\n");
-
-  text = text.replace(/```([\w-]*)\n?([\s\S]*?)```/g, (_, lang, code) => {
-    const index = blocks.length;
-    blocks.push(
-      `<pre><code>${escapeHTML(code.replace(/\n$/, ""))}</code></pre>`
-    );
-    return `\n@@BLOCK${index}@@\n`;
-  });
-
-  let html = escapeHTML(text);
-
-  html = html.replace(
-    /`([^`\n]+)`/g,
-    "<code>$1</code>"
-  );
-
-  html = html.replace(
-    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
-    (_, label, url) => {
-      const safeUrl = url.replace(/&amp;/g, "&");
-      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${label}</a>`;
-    }
-  );
-
-  /* FIX: Proper bold support for **text** and __text__. */
-  html = html.replace(
-    /\*\*([\s\S]+?)\*\*/g,
-    "<strong>$1</strong>"
-  );
-
-  html = html.replace(
-    /__([\s\S]+?)__/g,
-    "<strong>$1</strong>"
-  );
-
-  html = html.replace(
-    /(?<!\*)\*([^*\n]+)\*(?!\*)/g,
-    "<em>$1</em>"
-  );
-
-  html = html.replace(
-    /(?<!_)_([^_\n]+)_(?!_)/g,
-    "<em>$1</em>"
-  );
-
-  const lines = html.split("\n");
-  const output = [];
-  let paragraph = [];
-  let listType = null;
-
-  function flushParagraph() {
-    if (paragraph.length) {
-      output.push(`<p>${paragraph.join("<br>")}</p>`);
-      paragraph = [];
-    }
-  }
-
-  function closeList() {
-    if (listType) {
-      output.push(`</${listType}>`);
-      listType = null;
-    }
-  }
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    const blockMatch = trimmed.match(/^@@BLOCK(\d+)@@$/);
-
-    if (blockMatch) {
-      flushParagraph();
-      closeList();
-      output.push(blocks[Number(blockMatch[1])]);
-      continue;
-    }
-
-    if (!trimmed) {
-      flushParagraph();
-      closeList();
-      continue;
-    }
-
-    const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
-
-    if (heading) {
-      flushParagraph();
-      closeList();
-
-      const level = heading[1].length;
-      output.push(`<h${level}>${heading[2]}</h${level}>`);
-      continue;
-    }
-
-    if (trimmed.startsWith("&gt; ")) {
-      flushParagraph();
-      closeList();
-      output.push(`<blockquote>${trimmed.slice(5)}</blockquote>`);
-      continue;
-    }
-
-    const unordered = trimmed.match(/^[-*]\s+(.+)$/);
-    const ordered = trimmed.match(/^\d+\.\s+(.+)$/);
-
-    if (unordered || ordered) {
-      flushParagraph();
-
-      const nextType = unordered ? "ul" : "ol";
-
-      if (listType !== nextType) {
-        closeList();
-        output.push(`<${nextType}>`);
-        listType = nextType;
-      }
-
-      output.push(`<li>${(unordered || ordered)[1]}</li>`);
-      continue;
-    }
-
-    closeList();
-    paragraph.push(trimmed);
-  }
-
-  flushParagraph();
-  closeList();
-
-  return output.join("\n").replace(
-    /@@BLOCK(\d+)@@/g,
-    (_, index) => blocks[Number(index)] || ""
-  );
-}
-
-function getCurrentChat() {
-  return chats.find(item => item.id === currentChatId);
-}
-
-function saveChats() {
-  try {
-    localStorage.setItem("xolox_chats", JSON.stringify(chats));
-  } catch (error) {
-    console.warn("Could not save chat history:", error);
-  }
+function createId() {
+  return Date.now().toString() +
+         Math.random().toString(36).slice(2, 7);
 }
 
 function loadChats() {
   try {
-    const saved = JSON.parse(
-      localStorage.getItem("xolox_chats") || "[]"
+    chats = JSON.parse(
+      localStorage.getItem("blinkgpt_chats") || "[]"
     );
-
-    if (Array.isArray(saved)) {
-      chats = saved.filter(item =>
-        item &&
-        typeof item.id === "string" &&
-        Array.isArray(item.messages)
-      );
-    }
   } catch {
     chats = [];
   }
+
+  renderHistory();
+
+  const savedTheme = localStorage.getItem("blinkgpt_theme");
+  if (savedTheme === "dark") {
+    document.body.classList.add("dark");
+  }
 }
 
-function createChat() {
-  const item = {
-    id: newId(),
-    title: "New chat",
-    messages: []
-  };
+function saveChats() {
+  localStorage.setItem("blinkgpt_chats", JSON.stringify(chats));
+}
 
-  chats.unshift(item);
-  currentChatId = item.id;
+function setTheme(theme) {
+  document.body.classList.toggle("dark", theme === "dark");
+  localStorage.setItem("blinkgpt_theme", theme);
+  document.getElementById("settingsMenu").classList.remove("show");
+}
 
-  saveChats();
-  renderChat();
+function toggleTheme() {
+  setTheme(
+    document.body.classList.contains("dark") ? "light" : "dark"
+  );
+}
+
+function toggleSettings() {
+  document.getElementById("settingsMenu")
+    .classList.toggle("show");
+}
+
+document.addEventListener("click", function(event) {
+  const menu = document.getElementById("settingsMenu");
+  if (!event.target.closest(".menu-wrap")) {
+    menu.classList.remove("show");
+  }
+});
+
+function toggleSidebar() {
+  document.getElementById("sidebar").classList.toggle("open");
+  document.getElementById("sidebarOverlay").classList.toggle("show");
+}
+
+function newChat() {
+  currentChatId = null;
+  messagesEl.innerHTML = "";
+  welcomeEl.style.display = "flex";
+  document.querySelector(".top-title").textContent =
+    "New conversation";
+  input.value = "";
+  input.focus();
+
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebarOverlay").classList.remove("show");
+
   renderHistory();
-  promptEl.focus();
-  closeSidebar();
+}
+
+function clearHistory() {
+  if (!confirm("Clear all saved chat history?")) return;
+
+  chats = [];
+  currentChatId = null;
+  saveChats();
+  newChat();
+  renderHistory();
 }
 
 function renderHistory() {
-  historyEl.innerHTML = "";
+  historyList.innerHTML = "";
 
-  for (const item of chats) {
-    const button = document.createElement("button");
+  chats.slice().reverse().forEach(chat => {
+    const item = document.createElement("div");
+    item.className = "history-item" +
+      (chat.id === currentChatId ? " active" : "");
 
-    button.className =
-      "history-item" +
-      (item.id === currentChatId ? " active" : "");
+    item.textContent = chat.title || "New conversation";
+    item.onclick = () => openChat(chat.id);
 
-    button.textContent = item.title || "New chat";
-    button.title = item.title || "New chat";
-
-    button.addEventListener("click", () => {
-      currentChatId = item.id;
-      renderChat();
-      renderHistory();
-      closeSidebar();
-    });
-
-    historyEl.appendChild(button);
-  }
+    historyList.appendChild(item);
+  });
 }
 
-function renderChat() {
-  const item = getCurrentChat();
+function openChat(id) {
+  const chat = chats.find(c => c.id === id);
+  if (!chat) return;
+
+  currentChatId = id;
   messagesEl.innerHTML = "";
+  welcomeEl.style.display = "none";
 
-  if (!item || item.messages.length === 0) {
-    const welcome = document.createElement("div");
-    welcome.className = "welcome";
-
-    welcome.innerHTML = `
-      <div class="welcome-logo">X</div>
-      <h1>Meet Xolox.</h1>
-      <p>Your AI assistant. Ask questions, explore ideas, or get help with your work.</p>
-      <div class="suggestions">
-        <button class="suggestion" data-prompt="Explain artificial intelligence simply.">Explain AI simply</button>
-        <button class="suggestion" data-prompt="Give me three creative project ideas.">Creative project ideas</button>
-        <button class="suggestion" data-prompt="Help me learn something new today.">Learn something new</button>
-        <button class="suggestion" data-prompt="Write a short story with a surprising ending.">Write a short story</button>
-      </div>
-    `;
-
-    welcome.querySelectorAll("[data-prompt]").forEach(button => {
-      button.addEventListener("click", () => {
-        promptEl.value = button.dataset.prompt;
-        autoResize();
-        sendMessage();
-      });
-    });
-
-    messagesEl.appendChild(welcome);
-    return;
-  }
-
-  item.messages.forEach((message, index) => {
-    appendMessage(message.role, message.content, index, false);
+  chat.messages.forEach(message => {
+    addMessage(message.role, message.content, false);
   });
+
+  document.querySelector(".top-title").textContent = chat.title;
+  renderHistory();
+
+  document.getElementById("sidebar").classList.remove("open");
+  document.getElementById("sidebarOverlay").classList.remove("show");
 
   scrollToBottom();
 }
 
-function appendMessage(role, content, index, animate = false) {
-  const wrapper = document.createElement("article");
-  wrapper.className = `message ${role}`;
+function ensureChat(firstMessage) {
+  if (currentChatId) {
+    return chats.find(c => c.id === currentChatId);
+  }
 
-  const roleLabel = document.createElement("div");
-  roleLabel.className = "role";
-  roleLabel.textContent = role === "user" ? "You" : "Xolox";
+  const chat = {
+    id: createId(),
+    title: firstMessage.slice(0, 35) || "New conversation",
+    messages: []
+  };
+
+  chats.push(chat);
+  currentChatId = chat.id;
+
+  document.querySelector(".top-title").textContent = chat.title;
+  renderHistory();
+
+  return chat;
+}
+
+function escapeHTML(text) {
+  return String(text).replace(/[&<>"']/g, char => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  })[char]);
+}
+
+/* Basic Markdown formatting */
+
+function formatMessage(text) {
+  let html = escapeHTML(text);
+
+  html = html.replace(/```([\s\S]*?)```/g,
+    (_, code) => "<pre><code>" + code + "</code></pre>");
+
+  html = html.replace(/`([^`]+)`/g,
+    "<code>$1</code>");
+
+  html = html.replace(/\*\*(.*?)\*\*/g,
+    "<strong>$1</strong>");
+
+  html = html.replace(/\*(.*?)\*/g,
+    "<em>$1</em>");
+
+  html = html.replace(/^### (.*)$/gm, "<h3>$1</h3>");
+  html = html.replace(/^## (.*)$/gm, "<h2>$1</h2>");
+  html = html.replace(/^# (.*)$/gm, "<h1>$1</h1>");
+
+  html = html.replace(/^\s*[-*] (.*)$/gm, "<li>$1</li>");
+  html = html.replace(/(<li>.*<\/li>)/gs, "<ul>$1</ul>");
+
+  html = html.replace(/\n/g, "<br>");
+
+  return html;
+}
+
+function addMessage(role, content, save = true) {
+  welcomeEl.style.display = "none";
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "message " + role;
 
   const bubble = document.createElement("div");
-  bubble.className = "bubble";
+  bubble.className = "message-bubble";
+  bubble.innerHTML = formatMessage(content);
 
-  wrapper.append(roleLabel, bubble);
-  messagesEl.appendChild(wrapper);
+  wrapper.appendChild(bubble);
 
   if (role === "assistant") {
-    const actionBar = document.createElement("div");
-    actionBar.className = "actions";
+    const actions = document.createElement("div");
+    actions.className = "message-actions";
 
-    /* LIKE: ♡ */
-    const likeBtn = makeAction("Like", "♡", () => {
-      const wasSelected = likeBtn.classList.contains("selected");
+    const copy = document.createElement("button");
+    copy.className = "action-btn";
+    copy.title = "Copy";
+    copy.textContent = "▢";
+    copy.onclick = () => {
+      navigator.clipboard?.writeText(content);
+      copy.textContent = "✓";
+      setTimeout(() => copy.textContent = "▢", 1200);
+    };
 
-      likeBtn.classList.toggle("selected", !wasSelected);
-      dislikeBtn.classList.remove("selected");
+    const like = document.createElement("button");
+    like.className = "action-btn";
+    like.title = "Good response";
+    like.textContent = "♡";
 
-      likeBtn.textContent = likeBtn.classList.contains("selected")
-        ? "♥"
-        : "♡";
-    });
+    like.onclick = () => {
+      like.textContent = "♥";
+    };
 
-    /* DISLIKE: ✕ */
-    const dislikeBtn = makeAction("Dislike", "✕", () => {
-      const wasSelected = dislikeBtn.classList.contains("selected");
+    const dislike = document.createElement("button");
+    dislike.className = "action-btn";
+    dislike.title = "Bad response";
+    dislike.textContent = "♧";
 
-      dislikeBtn.classList.toggle("selected", !wasSelected);
-      likeBtn.classList.remove("selected");
-      likeBtn.textContent = "♡";
-    });
+    dislike.onclick = () => {
+      dislike.textContent = "✕";
+    };
 
-    /* COPY: ❐ */
-    const copyBtn = makeAction("Copy", "❐", async () => {
-      try {
-        await copyText(content);
-        copyBtn.textContent = "✓";
-        copyBtn.title = "Copied!";
-
-        setTimeout(() => {
-          copyBtn.textContent = "❐";
-          copyBtn.title = "Copy";
-        }, 1500);
-      } catch {
-        copyBtn.title = "Copy failed";
-      }
-    });
-
-    /* REWRITE: ✎ */
-    const rewriteBtn = makeAction("Rewrite reply", "✎", () => {
-      rewriteReply(index, rewriteBtn);
-    });
-
-    /* SHARE: ➔ */
-    const shareBtn = makeAction("Share", "➔", async () => {
-      const shareData = {
-        title: "Xolox AI",
-        text: content
-      };
-
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-        } else {
-          await copyText(content);
-          shareBtn.textContent = "✓";
-          shareBtn.title = "Reply copied to share";
-
-          setTimeout(() => {
-            shareBtn.textContent = "➔";
-            shareBtn.title = "Share";
-          }, 1500);
-        }
-      } catch (error) {
-        if (error.name !== "AbortError") {
-          shareBtn.title = "Could not share";
-        }
-      }
-    });
-
-    actionBar.append(
-      likeBtn,
-      dislikeBtn,
-      copyBtn,
-      rewriteBtn,
-      shareBtn
-    );
-
-    wrapper.appendChild(actionBar);
+    actions.append(copy, like, dislike);
+    wrapper.appendChild(actions);
   }
 
-  if (animate && role === "assistant") {
-    typewriter(bubble, content);
-  } else {
-    bubble.innerHTML =
-      role === "assistant"
-        ? renderMarkdown(content)
-        : escapeHTML(content).replace(/\n/g, "<br>");
+  messagesEl.appendChild(wrapper);
+
+  if (save) {
+    const chat = ensureChat(content);
+    chat.messages.push({ role, content });
+    saveChats();
+    renderHistory();
   }
 
+  scrollToBottom();
   return wrapper;
 }
 
-function makeAction(title, symbol, callback) {
-  const button = document.createElement("button");
+function showThinking() {
+  const wrapper = document.createElement("div");
+  wrapper.className = "message assistant";
+  wrapper.id = "thinkingMessage";
 
-  button.type = "button";
-  button.className = "action-btn";
-  button.title = title;
-  button.setAttribute("aria-label", title);
-  button.textContent = symbol;
+  wrapper.innerHTML = `
+    <div class="message-bubble thinking">
+      <span></span><span></span><span></span>
+    </div>
+  `;
 
-  button.addEventListener("click", callback);
-
-  return button;
+  messagesEl.appendChild(wrapper);
+  scrollToBottom();
 }
 
-async function copyText(text) {
-  if (navigator.clipboard && window.isSecureContext) {
-    return navigator.clipboard.writeText(text);
+function removeThinking() {
+  document.getElementById("thinkingMessage")?.remove();
+}
+
+function scrollToBottom() {
+  requestAnimationFrame(() => {
+    chatArea.scrollTop = chatArea.scrollHeight;
+  });
+}
+
+function autoResize() {
+  input.style.height = "auto";
+  input.style.height = Math.min(input.scrollHeight, 160) + "px";
+}
+
+input.addEventListener("input", autoResize);
+
+input.addEventListener("keydown", event => {
+  if (event.key === "Enter" && !event.shiftKey) {
+    event.preventDefault();
+    sendMessage();
   }
+});
 
-  const temporary = document.createElement("textarea");
+async function sendMessage() {
+  const message = input.value.trim();
 
-  temporary.value = text;
-  temporary.style.position = "fixed";
-  temporary.style.opacity = "0";
+  if (!message || isSending) return;
 
-  document.body.appendChild(temporary);
-  temporary.select();
+  isSending = true;
+  sendBtn.disabled = true;
 
-  const success = document.execCommand("copy");
-  temporary.remove();
+  const chat = ensureChat(message);
 
-  if (!success) {
-    throw new Error("Copy failed");
+  addMessage("user", message);
+
+  input.value = "";
+  input.style.height = "auto";
+
+  showThinking();
+
+  try {
+    const response = await fetch("/api/chat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: message,
+        history: chat.messages.slice(0, -1)
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error("Server error: " + response.status);
+    }
+
+    const data = await response.json();
+
+    let reply =
+      data.reply ||
+      data.response ||
+      data.message ||
+      data.text ||
+      data.candidates?.[0]?.content?.parts
+        ?.map(part => part.text || "")
+        .join("") ||
+      "";
+
+    if (typeof reply !== "string" || !reply.trim()) {
+      throw new Error("The AI returned an empty response.");
+    }
+
+    removeThinking();
+    addMessage("assistant", reply);
+
+  } catch (error) {
+    removeThinking();
+
+    addMessage(
+      "assistant",
+      "Sorry, I couldn't connect to BlinkGPT right now. Please check your server and API configuration, then try again."
+    );
+
+    console.error("BlinkGPT error:", error);
+
+  } finally {
+    isSending = false;
+    sendBtn.disabled = false;
+    input.focus();
   }
 }
 
-async function typewriter(element, content) {
-  const token = ++typingToken;
-  const chunkSize = 5;
-  let position = 0;
+loadChats();
+</script>
 
-  element.textContent = "";
-
-  while (position < content.length && token === typingToken) {
-    position = Math.min(position + chunkSize, content.length);
-
-    element.innerHTML = renderMarkdown(
-      content.slice(0, position
+</body>
+</html>
